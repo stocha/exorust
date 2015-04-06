@@ -15,8 +15,9 @@ mod exo;
 
 
 fn main() {
+	exo::puissance_four::launch();
 	//exo::hello_world::launch();
-	exo::invert_tab::launch();
+	//exo::invert_tab::launch();
 	
     
 }
