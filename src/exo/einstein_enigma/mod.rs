@@ -134,6 +134,8 @@ struct Maison{
 }
 
 
+
+
 impl Maison{
 
 
@@ -218,20 +220,97 @@ impl Maison{
 	m
 	}
 
+/*impl Iterator for Maison {
+type Item = Maison;
+    fn next(&mut self) -> Option<Maison> {
+        let n=(*self).inc();
+        Some(n)
+    }
+}*/	
+
+#[derive(Debug)]
+struct HypotheseVector(Vec<Maison>,Vec<Maison>,Vec<Maison>,Vec<Maison>,Vec<Maison>);
+
+
+fn full_possibility() -> HypotheseVector{
+	let mut r=HypotheseVector(Vec::new(),Vec::new(),Vec::new(),Vec::new(),Vec::new());
+
+	let mut o=origin() ;
+	let nb_boucle=5*5 ;
+	for _ in 0..nb_boucle{
+		//println!("> {:?}", o);
+		match r{
+			HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
+				a.push(o.clone());
+				b.push(o.clone());
+				c.push(o.clone());
+				d.push(o.clone());
+				e.push(o.clone());
+
+			}
+
+		}
+		o=o.inc();
+
+	}
+
+	r
+}
+
+		fn anglais_rouge<'r> (input : &'r Maison ) -> bool {
+		    //let input : Maison = x;
+
+		    //Maison { couleur : Couleur::Rouge, nationalite : Nationalite::Anglais, boisson : Boisson::The, cigarette : Cigarette::PallMall, animaux : Animaux::Chien };
+
+		    match *input{
+		    	Maison { couleur : Couleur::Rouge, nationalite : Nationalite::Anglais, boisson : _, cigarette : _, animaux : _} =>  true,
+		    	Maison { couleur : _, nationalite : Nationalite::Anglais, boisson : _, cigarette : _, animaux : _} => false,
+		    	Maison { couleur : Couleur::Rouge, nationalite : _, boisson : _, cigarette : _, animaux : _} =>  false,
+		    	_ =>  true
+
+		    }
+		}
+
+impl HypotheseVector{
+	fn r1<'cl, 'a> ( &mut self ) -> (){
+		//L'Anglais vit dans la maison rouge.
+
+
+
+		match *self{
+		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
+				a.retain(anglais_rouge);
+				b.retain(anglais_rouge);
+				c.retain(anglais_rouge);
+				d.retain(anglais_rouge);
+				e.retain(anglais_rouge);
+
+			}
+
+		}
+
+
+	}
+
+
+	fn all_rules(&mut self){
+		self.r1();
+
+	}
+}
+
 
 
 pub fn launch()->(){
 
 	println!("Einstein enigma program");
-	let mut o=origin() ;
-	println!("Origine : {:?}",o);
 
-	let nb_boucle=5*5*5*5*5 ;
-	for _ in 0..nb_boucle{
-		println!("> {:?}", o);
-		o=o.inc();
 
-	}
+	let mut h=full_possibility();
+
+	h.all_rules();
+
+	println!("> {:?}", h);
 
 }
 
