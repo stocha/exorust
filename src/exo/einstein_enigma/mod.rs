@@ -146,21 +146,21 @@ impl Maison{
 		    	Maison {couleur : Couleur::Bleue,
 		    	 nationalite : Nationalite::Allemand,
 		    	  boisson : Boisson::Eau,
-		    	   cigarette : Cigarette::PallMall,
+		    	   cigarette : Cigarette::Prince,
 		    	    animaux : Animaux::PoissonRouge
 		    	    } =>
 		    	{
-		    	 	Maison{couleur : Couleur::Bleue.inc(), nationalite : Nationalite::Allemand.inc(), boisson : Boisson::Eau.inc(), cigarette : Cigarette::PallMall.inc(), animaux : Animaux::PoissonRouge.inc()}
+		    	 	Maison{couleur : Couleur::Bleue.inc(), nationalite : Nationalite::Allemand.inc(), boisson : Boisson::Eau.inc(), cigarette : Cigarette::Prince.inc(), animaux : Animaux::PoissonRouge.inc()}
 		    	 },	
 
 		    	Maison {couleur : Couleur::Bleue,
 		    	 nationalite : Nationalite::Allemand,
 		    	  boisson : Boisson::Eau,
-		    	   cigarette : Cigarette::PallMall,
+		    	   cigarette : Cigarette::Prince,
 		    	    animaux : e
 		    	    } =>
 		    	{
-		    	 	Maison{couleur : Couleur::Bleue.inc(), nationalite : Nationalite::Allemand.inc(), boisson : Boisson::Eau.inc(), cigarette : Cigarette::PallMall.inc(), animaux : e.inc()}
+		    	 	Maison{couleur : Couleur::Bleue.inc(), nationalite : Nationalite::Allemand.inc(), boisson : Boisson::Eau.inc(), cigarette : Cigarette::Prince.inc(), animaux : e.inc()}
 		    	 },		
 
 
@@ -226,8 +226,8 @@ pub fn launch()->(){
 	let mut o=origin() ;
 	println!("Origine : {:?}",o);
 
-	//let nbBoucle=5*5*5*5*5 as ui32;
-	for _ in 0..35{
+	let nb_boucle=5*5*5*5*5 ;
+	for _ in 0..nb_boucle{
 		println!("> {:?}", o);
 		o=o.inc();
 
