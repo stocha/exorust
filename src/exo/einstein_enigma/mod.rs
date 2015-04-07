@@ -258,7 +258,7 @@ fn full_possibility() -> HypotheseVector{
 }
 
 //1. L'Anglais vit dans la maison rouge.
-		fn anglais_rouge<'r> (input : &'r Maison ) -> bool {
+		fn r1_anglais_rouge<'r> (input : &'r Maison ) -> bool {
 		    match *input{
 		    	Maison { couleur : Couleur::Rouge, nationalite : Nationalite::Anglais, boisson : _, cigarette : _, animaux : _} =>  true,
 		    	Maison { couleur : _, nationalite : Nationalite::Anglais, boisson : _, cigarette : _, animaux : _} => false,
@@ -269,7 +269,7 @@ fn full_possibility() -> HypotheseVector{
 		}
 
 //2. Le Suédois élève des chiens.
-		fn suedois_chien<'r> (input : &'r Maison ) -> bool {
+		fn r2_suedois_chien<'r> (input : &'r Maison ) -> bool {
 		    match *input{
 		    	Maison { couleur : _, nationalite : Nationalite::Suedois, boisson : _, cigarette : _, animaux : Animaux::Chien} =>  true,
 		    	Maison { couleur : _, nationalite : Nationalite::Suedois, boisson : _, cigarette : _, animaux :_} =>  false,
@@ -280,7 +280,7 @@ fn full_possibility() -> HypotheseVector{
 		}		
 
 //3. Le Danois boit du thé.
-		fn danois_the<'r> (input : &'r Maison ) -> bool {
+		fn r3_danois_the<'r> (input : &'r Maison ) -> bool {
 		    match *input{
 		    	Maison { couleur : _, nationalite : Nationalite::Danois, boisson : Boisson::The, cigarette : _, animaux : _} =>  true,
 		    	Maison { couleur : _, nationalite : Nationalite::Danois, boisson : _, cigarette : _, animaux : _} =>  false,
@@ -290,7 +290,7 @@ fn full_possibility() -> HypotheseVector{
 		    }
 		}			
 //5. Le propriétaire de la maison verte boit du café.
-		fn verte_cafe<'r> (input : &'r Maison ) -> bool {
+		fn r5_verte_cafe<'r> (input : &'r Maison ) -> bool {
 		    match *input{
 		    	Maison { couleur : Couleur::Verte, nationalite : _, boisson : Boisson::Cafe, cigarette : _, animaux : _} =>  true,
 		    	Maison { couleur : _, nationalite : _, boisson : Boisson::Cafe, cigarette : _, animaux : _} =>  false,
@@ -301,7 +301,7 @@ fn full_possibility() -> HypotheseVector{
 		}	
 
 //6. Le fumeur de Pall Mall élève des oiseaux.
-		fn pallmall_oiseau<'r> (input : &'r Maison ) -> bool {
+		fn r6_pallmall_oiseau<'r> (input : &'r Maison ) -> bool {
 		    match *input{
 		    	Maison { couleur : _, nationalite : _, boisson : _, cigarette : Cigarette::PallMall, animaux : Animaux::Oiseaux} =>  true,
 		    	Maison { couleur : _, nationalite : _, boisson : _, cigarette : _, animaux : Animaux::Oiseaux} =>  false,
@@ -312,7 +312,7 @@ fn full_possibility() -> HypotheseVector{
 		}		
 
 //7. Le propriétaire de la maison jaune fume des Dunhills. 
-		fn jaune_dunhills<'r> (input : &'r Maison ) -> bool {
+		fn r7_jaune_dunhills<'r> (input : &'r Maison ) -> bool {
 		    match *input{
 		    	Maison { couleur : Couleur::Jaune, nationalite : _, boisson : _, cigarette : Cigarette::Dunhills, animaux : _} =>  true,
 		    	Maison { couleur : Couleur::Jaune, nationalite : _, boisson : _, cigarette : _, animaux : _} =>  false,
@@ -321,6 +321,28 @@ fn full_possibility() -> HypotheseVector{
 
 		    }
 		}				
+
+//12. L'homme qui fume des Blue Masters boit de la bière.		
+		fn r12_bluemaster_biere<'r> (input : &'r Maison ) -> bool {
+		    match *input{
+		    	Maison { couleur :_  	, nationalite : _ 	, boisson : Boisson::Biere 	, cigarette : Cigarette::BleueMasters	, animaux : _} =>  true,
+		    	Maison { couleur :_ 	, nationalite : _ 	, boisson : Boisson::Biere 	, cigarette : _ 						, animaux : _}  =>  false,
+		    	Maison { couleur :_ 	, nationalite : _ 	, boisson : _				, cigarette : Cigarette::BleueMasters 	, animaux : _} =>  false,
+		    	_ =>  true
+
+		    }
+		}	
+
+//13. L'Allemand fume des Prince. 
+		fn r13_allemand_prince<'r> (input : &'r Maison ) -> bool {
+		    match *input{
+		    	Maison { couleur :_  	, nationalite : Nationalite::Allemand 	, boisson : _ 	, cigarette : Cigarette::Prince						, animaux : _} =>  true,
+		    	Maison { couleur :_  	, nationalite : Nationalite::Allemand 	, boisson : _ 	, cigarette : _										, animaux : _}   =>  false,
+		    	Maison { couleur :_  	, nationalite : _					 	, boisson : _ 	, cigarette : Cigarette::Prince						, animaux : _}  =>  false,
+		    	_ =>  true
+
+		    }
+		}	
 
 
 impl HypotheseVector{
@@ -356,12 +378,14 @@ impl HypotheseVector{
 
 	fn all_rules(&mut self){
 		self.r1();
-		self.apply(anglais_rouge);
-		self.apply(suedois_chien);
-		self.apply(danois_the);
-		self.apply(verte_cafe);
-		self.apply(pallmall_oiseau);
-		self.apply(jaune_dunhills);
+		self.apply(r1_anglais_rouge);
+		self.apply(r2_suedois_chien);
+		self.apply(r3_danois_the);
+		self.apply(r5_verte_cafe);
+		self.apply(r6_pallmall_oiseau);
+		self.apply(r7_jaune_dunhills);
+		self.apply(r12_bluemaster_biere);
+		self.apply(r13_allemand_prince);
 
 
 	}
