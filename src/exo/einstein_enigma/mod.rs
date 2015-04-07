@@ -1,3 +1,6 @@
+use std::fmt;
+
+
 #[derive(Debug,Clone)]
 enum Couleur{
 	Rouge,
@@ -370,6 +373,54 @@ fn full_possibility() -> HypotheseVector{
 
 		    }
 		}	
+		fn has_lait<'r> (input : &'r Maison ) -> bool {
+		    match *input{
+		    	Maison { couleur :_  	, nationalite : _ 	, boisson : Boisson::Lait 	, cigarette : _						, animaux : _				 } =>  true,
+		    	_ =>  false
+
+		    }
+		}		
+		fn has_bleue<'r> (input : &'r Maison ) -> bool {
+		    match *input{
+		    	Maison { couleur :Couleur::Bleue  	, nationalite : _ 	, boisson : _ 	, cigarette : _						, animaux : _				 } =>  true,
+		    	_ =>  false
+
+		    }
+		}				
+
+		fn vec_has<F>(v : &Vec<Maison>,rule : F) -> bool
+		where F: Fn(&Maison) -> bool{
+
+			    for f in v.iter() {
+			        if rule(&f) {return true}
+			    }
+
+			    false
+
+		}
+
+		fn vec_only<F>(v : &Vec<Maison>,rule : F) -> bool
+		where F: Fn(&Maison) -> bool{
+
+			    for f in v.iter() {
+			        if !rule(&f) {return false}
+			    }
+
+			    true
+
+		}		
+
+impl fmt::Display for HypotheseVector {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match *self{
+		HypotheseVector(ref a,ref b,ref c,ref d,ref e) => {
+		    	write!(f,"\n++++++Maison 1++++++\n {:?}\n++++++Maison 2++++++\n {:?}\n++++++Maison 3++++++\n {:?}\n++++++Maison 4++++++\n {:?}\n++++++Maison 5++++++\n {:?}",a,b,c,d,e)
+
+			}
+
+		}
+    }
+}
 
 
 impl HypotheseVector{
@@ -386,9 +437,70 @@ impl HypotheseVector{
 
 	}
 
+	fn constraint_voisin_keep_not_in_or_voisin_in<F,G>(&mut self,rule1 : F,rule2 : G)
+	where F: Fn(&Maison) -> bool, G: Fn(&Maison) -> bool{
+
+		match *self{
+		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
+				let ba=vec_has(&a,|x: &Maison| !rule1(x));
+				let bb=vec_has(&b,|x: &Maison| !rule1(x));
+				let bc=vec_has(&c,|x: &Maison| !rule1(x));
+				let bd=vec_has(&d,|x: &Maison| !rule1(x));
+				let be=vec_has(&e,|x: &Maison| !rule1(x));
+
+				a.retain(|x: &Maison| !rule2(x) || 		bb);
+				b.retain(|x: &Maison| !rule2(x) || ba || 	bc);
+				c.retain(|x: &Maison| !rule2(x) || bb || 	bd);
+				d.retain(|x: &Maison| !rule2(x) || bc || 	be);
+				e.retain(|x: &Maison| !rule2(x) || bd );
+
+				let na=vec_has(&a,|x: &Maison| !rule2(x));
+				let nb=vec_has(&b,|x: &Maison| !rule2(x));
+				let nc=vec_has(&c,|x: &Maison| !rule2(x));
+				let nd=vec_has(&d,|x: &Maison| !rule2(x));
+				let ne=vec_has(&e,|x: &Maison| !rule2(x));		
+
+				a.retain(|x: &Maison| !rule1(x) || 			nb);
+				b.retain(|x: &Maison| !rule1(x) || na || 	nc);
+				c.retain(|x: &Maison| !rule1(x) || nb || 	nd);
+				d.retain(|x: &Maison| !rule1(x) || nc || 	ne);
+				e.retain(|x: &Maison| !rule1(x) || nd );	
+
+			}
+
+		}
+
+	}		
+
+	fn constraint_voisin<F,G>(&mut self,rule1 : F,rule2 : G)
+	where F: Fn(&Maison) -> bool, G: Fn(&Maison) -> bool{
+
+
+		self.constraint_voisin_keep_not_in_or_voisin_in(|x: &Maison| rule1(x),|x: &Maison| rule2(x));
+
+
+	}	
+
 //4. La maison verte est juste à gauche de la maison blanche.
 	fn r4_maison_verte_gauche_blanche<'cl, 'a> ( &mut self ) -> (){
 
+
+
+	}
+
+//8. L'homme qui vit dans la maison du centre boit du lait. 
+	fn r8_centre_lait<'cl, 'a> ( &mut self ) -> (){
+		match *self{
+		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
+				a.retain(|x: &Maison| !has_lait(x));
+				b.retain(|x: &Maison| !has_lait(x));
+				c.retain(|x: &Maison| has_lait(x));
+				d.retain(|x: &Maison| !has_lait(x));
+				e.retain(|x: &Maison| !has_lait(x));
+
+			}
+
+		}
 
 
 	}
@@ -406,8 +518,70 @@ impl HypotheseVector{
 			}
 
 		}
+	}
+//14. Le Norvégien vit à côté de la maison bleue. 	
+	fn r14_norvegien_cote_maison_bleue<'cl, 'a> ( &mut self ) -> (){
+		self.constraint_voisin(|x: &Maison| has_a_norvegien(x),|x: &Maison| has_bleue(x));
+
+		match *self{
+		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
+
+				
+
+				let ba=vec_has(&a,has_bleue);
+				let bb=vec_has(&b,has_bleue);
+				let bc=vec_has(&c,has_bleue);
+				let bd=vec_has(&d,has_bleue);
+				let be=vec_has(&e,has_bleue);
+
+				a.retain(|x: &Maison| !has_a_norvegien(x) || 		bb);
+				b.retain(|x: &Maison| !has_a_norvegien(x) || ba || 	bc);
+				c.retain(|x: &Maison| !has_a_norvegien(x) || bb || 	bd);
+				d.retain(|x: &Maison| !has_a_norvegien(x) || bc || 	be);
+				e.retain(|x: &Maison| !has_a_norvegien(x) || bd );
+
+				let na=vec_has(&a,has_a_norvegien);
+				let nb=vec_has(&b,has_a_norvegien);
+				let nc=vec_has(&c,has_a_norvegien);
+				let nd=vec_has(&d,has_a_norvegien);
+				let ne=vec_has(&e,has_a_norvegien);		
+
+				a.retain(|x: &Maison| !has_bleue(x) || 			nb);
+				b.retain(|x: &Maison| !has_bleue(x) || na || 	nc);
+				c.retain(|x: &Maison| !has_bleue(x) || nb || 	nd);
+				d.retain(|x: &Maison| !has_bleue(x) || nc || 	ne);
+				e.retain(|x: &Maison| !has_bleue(x) || nd );			
 
 
+				let oba=vec_only(&a,has_bleue);
+				let obb=vec_only(&b,has_bleue);
+				let obc=vec_only(&c,has_bleue);
+				let obd=vec_only(&d,has_bleue);
+				let obe=vec_only(&e,has_bleue);
+
+				a.retain(|x: &Maison| has_a_norvegien(x) || 			!obb);
+				b.retain(|x: &Maison| has_a_norvegien(x) || !(oba ||	obc));
+				c.retain(|x: &Maison| has_a_norvegien(x) || !(obb || 	obd));
+				d.retain(|x: &Maison| has_a_norvegien(x) || !(obc || 	obe));
+				e.retain(|x: &Maison| has_a_norvegien(x) || !obd );					
+
+
+
+				let ona=vec_only(&a,has_a_norvegien);
+				let onb=vec_only(&b,has_a_norvegien);
+				let onc=vec_only(&c,has_a_norvegien);
+				let ond=vec_only(&d,has_a_norvegien);
+				let one=vec_only(&e,has_a_norvegien);		
+
+				a.retain(|x: &Maison| has_bleue(x) || 			!onb);
+				b.retain(|x: &Maison| has_bleue(x) || (ona || 	onc));
+				c.retain(|x: &Maison| has_bleue(x) || (onb || 	ond));
+				d.retain(|x: &Maison| has_bleue(x) || (onc || 	one));
+				e.retain(|x: &Maison| has_bleue(x) || !ond );														
+
+			}
+
+		}
 	}
 
 	fn apply<F>(&mut self,rule : F)
@@ -443,7 +617,9 @@ impl HypotheseVector{
 
 	fn other_constraintes(&mut self){
 		self.r4_maison_verte_gauche_blanche();
+		self.r8_centre_lait();
 		self.r9_norvegien_premiere();
+		self.r14_norvegien_cote_maison_bleue();
 	}
 }
 
@@ -462,17 +638,17 @@ pub fn launch()->(){
 
 	println!("> determinant apres contraintes simples : {} ",h.count_determinant());
 
-	let mut prev_det=h.count_determinant()+1;
 	let mut count_apply=0;
 
-	while prev_det!=h.count_determinant() {
+	 loop{
 		count_apply=count_apply+1;
-		prev_det=h.count_determinant();
+		let prev_det=h.count_determinant();
 		println!("-------------------------------");
 		h.other_constraintes();
-		println!("> {:?}", h);
+		println!("> {}", h);
 		println!("> determinant : {} :  apres {} application des regles ",h.count_determinant(), count_apply);
 
+		if prev_det==h.count_determinant() {break;}
 	}
 
 
