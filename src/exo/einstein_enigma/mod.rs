@@ -344,16 +344,68 @@ fn full_possibility() -> HypotheseVector{
 		    }
 		}	
 
+//1. L'Anglais vit dans la maison rouge.
+//2. Le Suédois élève des chiens.
+//3. Le Danois boit du thé.
+//5. Le propriétaire de la maison verte boit du café.
+//6. Le fumeur de Pall Mall élève des oiseaux.
+//7. Le propriétaire de la maison jaune fume des Dunhills. 
+//12. L'homme qui fume des Blue Masters boit de la bière.
+//13. L'Allemand fume des Prince. 	
+
+//4. La maison verte est juste à gauche de la maison blanche.
+//8. L'homme qui vit dans la maison du centre boit du lait. 
+//9. Le Norvégien vit dans la première maison. 
+//10. L'homme qui fume des Blends vit à côté de celui qui élève des chats. 
+//11. L'homme qui élève des chevaux vit à côté du fumeur de Dunhills. 
+//14. Le Norvégien vit à côté de la maison bleue. 
+//15. L'homme qui fume des Blends a un voisin qui boit de l'eau.	
+
+
+
+		fn has_a_norvegien<'r> (input : &'r Maison ) -> bool {
+		    match *input{
+		    	Maison { couleur :_  	, nationalite : Nationalite::Norvegien 	, boisson : _ 	, cigarette : _						, animaux : _				 } =>  true,
+		    	_ =>  false
+
+		    }
+		}	
+
 
 impl HypotheseVector{
 
+	fn count_determinant ( &mut self ) -> usize{
+		match *self{
+		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
+				a.len()+b.len()+c.len()+d.len()+e.len()
 
-	fn r1<'cl, 'a> ( &mut self ) -> (){
-		//L'Anglais vit dans la maison rouge.
+			}
+
+		}
+
+
+	}
+
+//4. La maison verte est juste à gauche de la maison blanche.
+	fn r4_maison_verte_gauche_blanche<'cl, 'a> ( &mut self ) -> (){
 
 
 
+	}
 
+//9. Le Norvégien vit dans la première maison. 	
+	fn r9_norvegien_premiere<'cl, 'a> ( &mut self ) -> (){
+		match *self{
+		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
+				a.retain(|x: &Maison| has_a_norvegien(x));
+				b.retain(|x: &Maison| !has_a_norvegien(x));
+				c.retain(|x: &Maison| !has_a_norvegien(x));
+				d.retain(|x: &Maison| !has_a_norvegien(x));
+				e.retain(|x: &Maison| !has_a_norvegien(x));
+
+			}
+
+		}
 
 
 	}
@@ -375,9 +427,7 @@ impl HypotheseVector{
 
 	}
 
-
-	fn all_rules(&mut self){
-		self.r1();
+	fn simple_constraints(&mut self){
 		self.apply(r1_anglais_rouge);
 		self.apply(r2_suedois_chien);
 		self.apply(r3_danois_the);
@@ -388,6 +438,12 @@ impl HypotheseVector{
 		self.apply(r13_allemand_prince);
 
 
+	}	
+
+
+	fn other_constraintes(&mut self){
+		self.r4_maison_verte_gauche_blanche();
+		self.r9_norvegien_premiere();
 	}
 }
 
@@ -399,10 +455,27 @@ pub fn launch()->(){
 
 
 	let mut h=full_possibility();
+	println!("> determinant de base : {} ",h.count_determinant());
 
-	h.all_rules();
+	h.simple_constraints();
+	println!("> {:?} " ,h);
 
-	println!("> {:?}", h);
+	println!("> determinant apres contraintes simples : {} ",h.count_determinant());
+
+	let mut prev_det=h.count_determinant()+1;
+	let mut count_apply=0;
+
+	while prev_det!=h.count_determinant() {
+		count_apply=count_apply+1;
+		prev_det=h.count_determinant();
+		println!("-------------------------------");
+		h.other_constraintes();
+		println!("> {:?}", h);
+		println!("> determinant : {} :  apres {} application des regles ",h.count_determinant(), count_apply);
+
+	}
+
+
 
 }
 
