@@ -236,7 +236,7 @@ fn full_possibility() -> HypotheseVector{
 	let mut r=HypotheseVector(Vec::new(),Vec::new(),Vec::new(),Vec::new(),Vec::new());
 
 	let mut o=origin() ;
-	let nb_boucle=5*5 ;
+	let nb_boucle=5*5*5*5*5 ;
 	for _ in 0..nb_boucle{
 		//println!("> {:?}", o);
 		match r{
@@ -257,11 +257,8 @@ fn full_possibility() -> HypotheseVector{
 	r
 }
 
+//1. L'Anglais vit dans la maison rouge.
 		fn anglais_rouge<'r> (input : &'r Maison ) -> bool {
-		    //let input : Maison = x;
-
-		    //Maison { couleur : Couleur::Rouge, nationalite : Nationalite::Anglais, boisson : Boisson::The, cigarette : Cigarette::PallMall, animaux : Animaux::Chien };
-
 		    match *input{
 		    	Maison { couleur : Couleur::Rouge, nationalite : Nationalite::Anglais, boisson : _, cigarette : _, animaux : _} =>  true,
 		    	Maison { couleur : _, nationalite : Nationalite::Anglais, boisson : _, cigarette : _, animaux : _} => false,
@@ -271,30 +268,101 @@ fn full_possibility() -> HypotheseVector{
 		    }
 		}
 
+//2. Le Suédois élève des chiens.
+		fn suedois_chien<'r> (input : &'r Maison ) -> bool {
+		    match *input{
+		    	Maison { couleur : _, nationalite : Nationalite::Suedois, boisson : _, cigarette : _, animaux : Animaux::Chien} =>  true,
+		    	Maison { couleur : _, nationalite : Nationalite::Suedois, boisson : _, cigarette : _, animaux :_} =>  false,
+		    	Maison { couleur : _, nationalite : _, boisson : _, cigarette : _, animaux : Animaux::Chien} =>  false,
+		    	_ =>  true
+
+		    }
+		}		
+
+//3. Le Danois boit du thé.
+		fn danois_the<'r> (input : &'r Maison ) -> bool {
+		    match *input{
+		    	Maison { couleur : _, nationalite : Nationalite::Danois, boisson : Boisson::The, cigarette : _, animaux : _} =>  true,
+		    	Maison { couleur : _, nationalite : Nationalite::Danois, boisson : _, cigarette : _, animaux : _} =>  false,
+		    	Maison { couleur : _, nationalite : _, boisson : Boisson::The, cigarette : _, animaux : _} =>  false,
+		    	_ =>  true
+
+		    }
+		}			
+//5. Le propriétaire de la maison verte boit du café.
+		fn verte_cafe<'r> (input : &'r Maison ) -> bool {
+		    match *input{
+		    	Maison { couleur : Couleur::Verte, nationalite : _, boisson : Boisson::Cafe, cigarette : _, animaux : _} =>  true,
+		    	Maison { couleur : _, nationalite : _, boisson : Boisson::Cafe, cigarette : _, animaux : _} =>  false,
+		    	Maison { couleur : Couleur::Verte, nationalite : _, boisson : _, cigarette : _, animaux : _}=>  false,
+		    	_ =>  true
+
+		    }
+		}	
+
+//6. Le fumeur de Pall Mall élève des oiseaux.
+		fn pallmall_oiseau<'r> (input : &'r Maison ) -> bool {
+		    match *input{
+		    	Maison { couleur : _, nationalite : _, boisson : _, cigarette : Cigarette::PallMall, animaux : Animaux::Oiseaux} =>  true,
+		    	Maison { couleur : _, nationalite : _, boisson : _, cigarette : _, animaux : Animaux::Oiseaux} =>  false,
+		    	Maison { couleur : _, nationalite : _, boisson : _, cigarette : Cigarette::PallMall, animaux : _}=>  false,
+		    	_ =>  true
+
+		    }
+		}		
+
+//7. Le propriétaire de la maison jaune fume des Dunhills. 
+		fn jaune_dunhills<'r> (input : &'r Maison ) -> bool {
+		    match *input{
+		    	Maison { couleur : Couleur::Jaune, nationalite : _, boisson : _, cigarette : Cigarette::Dunhills, animaux : _} =>  true,
+		    	Maison { couleur : Couleur::Jaune, nationalite : _, boisson : _, cigarette : _, animaux : _} =>  false,
+		    	Maison { couleur : _, nationalite : _, boisson : _, cigarette : Cigarette::Dunhills, animaux : _}=>  false,
+		    	_ =>  true
+
+		    }
+		}				
+
+
 impl HypotheseVector{
+
+
 	fn r1<'cl, 'a> ( &mut self ) -> (){
 		//L'Anglais vit dans la maison rouge.
 
 
 
+
+
+
+	}
+
+	fn apply<F>(&mut self,rule : F)
+	where F: Fn(&Maison) -> bool{
+
 		match *self{
 		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
-				a.retain(anglais_rouge);
-				b.retain(anglais_rouge);
-				c.retain(anglais_rouge);
-				d.retain(anglais_rouge);
-				e.retain(anglais_rouge);
+				a.retain(|x: &Maison| rule(x));
+				b.retain(|x: &Maison| rule(x));
+				c.retain(|x: &Maison| rule(x));
+				d.retain(|x: &Maison| rule(x));
+				e.retain(|x: &Maison| rule(x));
 
 			}
 
 		}
-
 
 	}
 
 
 	fn all_rules(&mut self){
 		self.r1();
+		self.apply(anglais_rouge);
+		self.apply(suedois_chien);
+		self.apply(danois_the);
+		self.apply(verte_cafe);
+		self.apply(pallmall_oiseau);
+		self.apply(jaune_dunhills);
+
 
 	}
 }
