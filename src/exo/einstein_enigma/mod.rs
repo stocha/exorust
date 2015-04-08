@@ -442,11 +442,11 @@ impl HypotheseVector{
 
 		match *self{
 		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
-				let ba=vec_has(&a,|x: &Maison| !rule1(x));
-				let bb=vec_has(&b,|x: &Maison| !rule1(x));
-				let bc=vec_has(&c,|x: &Maison| !rule1(x));
-				let bd=vec_has(&d,|x: &Maison| !rule1(x));
-				let be=vec_has(&e,|x: &Maison| !rule1(x));
+				let ba=vec_has(&a,|x: &Maison| rule1(x));
+				let bb=vec_has(&b,|x: &Maison| rule1(x));
+				let bc=vec_has(&c,|x: &Maison| rule1(x));
+				let bd=vec_has(&d,|x: &Maison| rule1(x));
+				let be=vec_has(&e,|x: &Maison| rule1(x));
 
 				a.retain(|x: &Maison| !rule2(x) || 		bb);
 				b.retain(|x: &Maison| !rule2(x) || ba || 	bc);
@@ -454,11 +454,11 @@ impl HypotheseVector{
 				d.retain(|x: &Maison| !rule2(x) || bc || 	be);
 				e.retain(|x: &Maison| !rule2(x) || bd );
 
-				let na=vec_has(&a,|x: &Maison| !rule2(x));
-				let nb=vec_has(&b,|x: &Maison| !rule2(x));
-				let nc=vec_has(&c,|x: &Maison| !rule2(x));
-				let nd=vec_has(&d,|x: &Maison| !rule2(x));
-				let ne=vec_has(&e,|x: &Maison| !rule2(x));		
+				let na=vec_has(&a,|x: &Maison| rule2(x));
+				let nb=vec_has(&b,|x: &Maison| rule2(x));
+				let nc=vec_has(&c,|x: &Maison| rule2(x));
+				let nd=vec_has(&d,|x: &Maison| rule2(x));
+				let ne=vec_has(&e,|x: &Maison| rule2(x));		
 
 				a.retain(|x: &Maison| !rule1(x) || 			nb);
 				b.retain(|x: &Maison| !rule1(x) || na || 	nc);
@@ -472,11 +472,47 @@ impl HypotheseVector{
 
 	}		
 
+	fn constraint_voisin_keep_in_or_not_voisin_onlyin<F,G>(&mut self,rule1 : F,rule2 : G)
+	where F: Fn(&Maison) -> bool, G: Fn(&Maison) -> bool{
+
+		match *self{
+		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
+				let ba=vec_only(&a,|x: &Maison| rule1(x));
+				let bb=vec_only(&b,|x: &Maison| rule1(x));
+				let bc=vec_only(&c,|x: &Maison| rule1(x));
+				let bd=vec_only(&d,|x: &Maison| rule1(x));
+				let be=vec_only(&e,|x: &Maison| rule1(x));
+
+				a.retain(|x: &Maison| rule2(x) || 		!bb);
+				b.retain(|x: &Maison| rule2(x) || !(ba || 	bc));
+				c.retain(|x: &Maison| rule2(x) || !(bb || 	bd));
+				d.retain(|x: &Maison| rule2(x) || !(bc || 	be));
+				e.retain(|x: &Maison| rule2(x) || !bd );
+
+				let na=vec_only(&a,|x: &Maison| rule2(x));
+				let nb=vec_only(&b,|x: &Maison| rule2(x));
+				let nc=vec_only(&c,|x: &Maison| rule2(x));
+				let nd=vec_only(&d,|x: &Maison| rule2(x));
+				let ne=vec_only(&e,|x: &Maison| rule2(x));		
+
+				a.retain(|x: &Maison| rule1(x) || 			!nb);
+				b.retain(|x: &Maison| rule1(x) || !(ba || 	bc));
+				c.retain(|x: &Maison| rule1(x) || !(bb || 	bd));
+				d.retain(|x: &Maison| rule1(x) || !(bc || 	be));
+				e.retain(|x: &Maison| rule1(x) || !nd );	
+
+			}
+
+		}
+
+	}	
+
 	fn constraint_voisin<F,G>(&mut self,rule1 : F,rule2 : G)
 	where F: Fn(&Maison) -> bool, G: Fn(&Maison) -> bool{
 
 
 		self.constraint_voisin_keep_not_in_or_voisin_in(|x: &Maison| rule1(x),|x: &Maison| rule2(x));
+		self.constraint_voisin_keep_in_or_not_voisin_onlyin(|x: &Maison| rule1(x),|x: &Maison| rule2(x));
 
 
 	}	
@@ -522,66 +558,6 @@ impl HypotheseVector{
 //14. Le Norvégien vit à côté de la maison bleue. 	
 	fn r14_norvegien_cote_maison_bleue<'cl, 'a> ( &mut self ) -> (){
 		self.constraint_voisin(|x: &Maison| has_a_norvegien(x),|x: &Maison| has_bleue(x));
-
-		match *self{
-		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
-
-				
-
-				let ba=vec_has(&a,has_bleue);
-				let bb=vec_has(&b,has_bleue);
-				let bc=vec_has(&c,has_bleue);
-				let bd=vec_has(&d,has_bleue);
-				let be=vec_has(&e,has_bleue);
-
-				a.retain(|x: &Maison| !has_a_norvegien(x) || 		bb);
-				b.retain(|x: &Maison| !has_a_norvegien(x) || ba || 	bc);
-				c.retain(|x: &Maison| !has_a_norvegien(x) || bb || 	bd);
-				d.retain(|x: &Maison| !has_a_norvegien(x) || bc || 	be);
-				e.retain(|x: &Maison| !has_a_norvegien(x) || bd );
-
-				let na=vec_has(&a,has_a_norvegien);
-				let nb=vec_has(&b,has_a_norvegien);
-				let nc=vec_has(&c,has_a_norvegien);
-				let nd=vec_has(&d,has_a_norvegien);
-				let ne=vec_has(&e,has_a_norvegien);		
-
-				a.retain(|x: &Maison| !has_bleue(x) || 			nb);
-				b.retain(|x: &Maison| !has_bleue(x) || na || 	nc);
-				c.retain(|x: &Maison| !has_bleue(x) || nb || 	nd);
-				d.retain(|x: &Maison| !has_bleue(x) || nc || 	ne);
-				e.retain(|x: &Maison| !has_bleue(x) || nd );			
-
-
-				let oba=vec_only(&a,has_bleue);
-				let obb=vec_only(&b,has_bleue);
-				let obc=vec_only(&c,has_bleue);
-				let obd=vec_only(&d,has_bleue);
-				let obe=vec_only(&e,has_bleue);
-
-				a.retain(|x: &Maison| has_a_norvegien(x) || 			!obb);
-				b.retain(|x: &Maison| has_a_norvegien(x) || !(oba ||	obc));
-				c.retain(|x: &Maison| has_a_norvegien(x) || !(obb || 	obd));
-				d.retain(|x: &Maison| has_a_norvegien(x) || !(obc || 	obe));
-				e.retain(|x: &Maison| has_a_norvegien(x) || !obd );					
-
-
-
-				let ona=vec_only(&a,has_a_norvegien);
-				let onb=vec_only(&b,has_a_norvegien);
-				let onc=vec_only(&c,has_a_norvegien);
-				let ond=vec_only(&d,has_a_norvegien);
-				let one=vec_only(&e,has_a_norvegien);		
-
-				a.retain(|x: &Maison| has_bleue(x) || 			!onb);
-				b.retain(|x: &Maison| has_bleue(x) || (ona || 	onc));
-				c.retain(|x: &Maison| has_bleue(x) || (onb || 	ond));
-				d.retain(|x: &Maison| has_bleue(x) || (onc || 	one));
-				e.retain(|x: &Maison| has_bleue(x) || !ond );														
-
-			}
-
-		}
 	}
 
 	fn apply<F>(&mut self,rule : F)
