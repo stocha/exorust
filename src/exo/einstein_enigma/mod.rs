@@ -723,18 +723,22 @@ pub fn launch()->(){
 	 loop{
 		count_apply=count_apply+1;
 		let prev_det=h.count_determinant();
-		println!("-------------------------------");
-		println!("-------------------------------");
-		println!("-------------------------------");
-		println!("-------------------------------");
-		println!("-------------------------------");
+		//println!("-------------------------------");
+		//println!("-------------------------------");
+		//println!("-------------------------------");
+		//println!("-------------------------------");
+		//println!("-------------------------------");
 
 		h.other_constraintes();
-		println!("> {}", h);
-		println!("> determinant : {} :  apres {} application des regles ",h.count_determinant(), count_apply);
+		//println!("{}", h);
+		println!("determinant : {} :  apres {} application des regles ",h.count_determinant(), count_apply);
 
 		if prev_det==h.count_determinant() {break;}
+
 	}
+	println!("------------ FIN DU PROGRAMME -----------");
+	println!("determinant : {} :  apres {} application des regles ",h.count_determinant(), count_apply);
+	println!("{}", h);
 
 
 
