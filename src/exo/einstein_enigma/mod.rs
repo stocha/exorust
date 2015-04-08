@@ -411,7 +411,7 @@ fn full_possibility() -> HypotheseVector{
 		}		
 
 
-fn vecString(v : &Vec<Maison>)-> String{
+fn vec_string(v : &Vec<Maison>)-> String{
 	let mut r=String::new();
 
 			    for f in v.iter() {
@@ -426,7 +426,7 @@ impl fmt::Display for HypotheseVector {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match *self{
 		HypotheseVector(ref a,ref b,ref c,ref d,ref e) => {
-		    	write!(f,"\n++++++Maison 1++++++\n {}\n++++++Maison 2++++++\n {}\n++++++Maison 3++++++\n {}\n++++++Maison 4++++++\n {}\n++++++Maison 5++++++\n {}",vecString(a),vecString (b),vecString (c),vecString (d), vecString (e))
+		    	write!(f,"\n++++++Maison 1++++++\n {}\n++++++Maison 2++++++\n {}\n++++++Maison 3++++++\n {}\n++++++Maison 4++++++\n {}\n++++++Maison 5++++++\n {}",vec_string(a),vec_string (b),vec_string (c),vec_string (d), vec_string (e))
 
 			}
 
@@ -465,19 +465,6 @@ impl HypotheseVector{
 				c.retain(|x: &Maison| !rule2(x) || bb || 	bd);
 				d.retain(|x: &Maison| !rule2(x) || bc || 	be);
 				e.retain(|x: &Maison| !rule2(x) || bd );
-
-				let na=vec_has(&a,|x: &Maison| rule2(x));
-				let nb=vec_has(&b,|x: &Maison| rule2(x));
-				let nc=vec_has(&c,|x: &Maison| rule2(x));
-				let nd=vec_has(&d,|x: &Maison| rule2(x));
-				let ne=vec_has(&e,|x: &Maison| rule2(x));		
-
-				a.retain(|x: &Maison| !rule1(x) || 			nb);
-				b.retain(|x: &Maison| !rule1(x) || na || 	nc);
-				c.retain(|x: &Maison| !rule1(x) || nb || 	nd);
-				d.retain(|x: &Maison| !rule1(x) || nc || 	ne);
-				e.retain(|x: &Maison| !rule1(x) || nd );	
-
 			}
 
 		}
@@ -489,30 +476,17 @@ impl HypotheseVector{
 
 		match *self{
 		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
-				let ba=vec_only(&a,|x: &Maison| rule1(x));
-				let bb=vec_only(&b,|x: &Maison| rule1(x));
-				let bc=vec_only(&c,|x: &Maison| rule1(x));
-				let bd=vec_only(&d,|x: &Maison| rule1(x));
-				let be=vec_only(&e,|x: &Maison| rule1(x));
+				let ba=vec_only(&a,|x: &Maison| !rule1(x));
+				let bb=vec_only(&b,|x: &Maison| !rule1(x));
+				let bc=vec_only(&c,|x: &Maison| !rule1(x));
+				let bd=vec_only(&d,|x: &Maison| !rule1(x));
+				let be=vec_only(&e,|x: &Maison| !rule1(x));
 
 				a.retain(|x: &Maison| rule2(x) || 		!bb);
-				b.retain(|x: &Maison| rule2(x) || !(ba || 	bc));
-				c.retain(|x: &Maison| rule2(x) || !(bb || 	bd));
-				d.retain(|x: &Maison| rule2(x) || !(bc || 	be));
+				b.retain(|x: &Maison| rule2(x) || (!ba && 	!bc));
+				c.retain(|x: &Maison| rule2(x) || (!bb && 	!bd));
+				d.retain(|x: &Maison| rule2(x) || (!bc && 	!be));
 				e.retain(|x: &Maison| rule2(x) || !bd );
-
-				let na=vec_only(&a,|x: &Maison| rule2(x));
-				let nb=vec_only(&b,|x: &Maison| rule2(x));
-				let nc=vec_only(&c,|x: &Maison| rule2(x));
-				let nd=vec_only(&d,|x: &Maison| rule2(x));
-				let ne=vec_only(&e,|x: &Maison| rule2(x));		
-
-				a.retain(|x: &Maison| rule1(x) || 			!nb);
-				b.retain(|x: &Maison| rule1(x) || !(na || 	nc));
-				c.retain(|x: &Maison| rule1(x) || !(nb || 	nd));
-				d.retain(|x: &Maison| rule1(x) || !(nc || 	ne));
-				e.retain(|x: &Maison| rule1(x) || !nd );	
-
 			}
 
 		}
@@ -524,7 +498,10 @@ impl HypotheseVector{
 
 
 		self.constraint_voisin_keep_not_in_or_voisin_in(|x: &Maison| rule1(x),|x: &Maison| rule2(x));
-		//self.constraint_voisin_keep_in_or_not_voisin_onlyin(|x: &Maison| rule1(x),|x: &Maison| rule2(x));
+		self.constraint_voisin_keep_not_in_or_voisin_in(|x: &Maison| rule2(x),|x: &Maison| rule1(x));
+
+		self.constraint_voisin_keep_in_or_not_voisin_onlyin(|x: &Maison| rule1(x),|x: &Maison| rule2(x));
+		self.constraint_voisin_keep_in_or_not_voisin_onlyin(|x: &Maison| rule2(x),|x: &Maison| rule1(x));
 
 
 	}	
