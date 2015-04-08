@@ -25,6 +25,7 @@
 //14. Le Norvégien vit à côté de la maison bleue. 
 //15. L'homme qui fume des Blends a un voisin qui boit de l'eau.
 
+pub mod einstein_enigma2;
 pub mod einstein_enigma;
 
 	// Réaliser un puissance 4 en mode Ascii
