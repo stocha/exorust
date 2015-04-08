@@ -410,11 +410,23 @@ fn full_possibility() -> HypotheseVector{
 
 		}		
 
+
+fn vecString(v : &Vec<Maison>)-> String{
+	let mut r=String::new();
+
+			    for f in v.iter() {
+			    	let ot=format!("{:?}\n",f);
+			        r.push_str(&ot);
+			    }
+	r
+	
+}
+
 impl fmt::Display for HypotheseVector {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match *self{
 		HypotheseVector(ref a,ref b,ref c,ref d,ref e) => {
-		    	write!(f,"\n++++++Maison 1++++++\n {:?}\n++++++Maison 2++++++\n {:?}\n++++++Maison 3++++++\n {:?}\n++++++Maison 4++++++\n {:?}\n++++++Maison 5++++++\n {:?}",a,b,c,d,e)
+		    	write!(f,"\n++++++Maison 1++++++\n {}\n++++++Maison 2++++++\n {}\n++++++Maison 3++++++\n {}\n++++++Maison 4++++++\n {}\n++++++Maison 5++++++\n {}",vecString(a),vecString (b),vecString (c),vecString (d), vecString (e))
 
 			}
 
@@ -496,9 +508,9 @@ impl HypotheseVector{
 				let ne=vec_only(&e,|x: &Maison| rule2(x));		
 
 				a.retain(|x: &Maison| rule1(x) || 			!nb);
-				b.retain(|x: &Maison| rule1(x) || !(ba || 	bc));
-				c.retain(|x: &Maison| rule1(x) || !(bb || 	bd));
-				d.retain(|x: &Maison| rule1(x) || !(bc || 	be));
+				b.retain(|x: &Maison| rule1(x) || !(na || 	nc));
+				c.retain(|x: &Maison| rule1(x) || !(nb || 	nd));
+				d.retain(|x: &Maison| rule1(x) || !(nc || 	ne));
 				e.retain(|x: &Maison| rule1(x) || !nd );	
 
 			}
@@ -512,7 +524,7 @@ impl HypotheseVector{
 
 
 		self.constraint_voisin_keep_not_in_or_voisin_in(|x: &Maison| rule1(x),|x: &Maison| rule2(x));
-		self.constraint_voisin_keep_in_or_not_voisin_onlyin(|x: &Maison| rule1(x),|x: &Maison| rule2(x));
+		//self.constraint_voisin_keep_in_or_not_voisin_onlyin(|x: &Maison| rule1(x),|x: &Maison| rule2(x));
 
 
 	}	
@@ -610,9 +622,9 @@ pub fn launch()->(){
 	println!("> determinant de base : {} ",h.count_determinant());
 
 	h.simple_constraints();
-	println!("> {:?} " ,h);
+	//println!("> {}", h);
 
-	println!("> determinant apres contraintes simples : {} ",h.count_determinant());
+	//println!("> determinant apres contraintes simples : {} ",h.count_determinant());
 
 	let mut count_apply=0;
 
@@ -620,6 +632,11 @@ pub fn launch()->(){
 		count_apply=count_apply+1;
 		let prev_det=h.count_determinant();
 		println!("-------------------------------");
+		println!("-------------------------------");
+		println!("-------------------------------");
+		println!("-------------------------------");
+		println!("-------------------------------");
+
 		h.other_constraintes();
 		println!("> {}", h);
 		println!("> determinant : {} :  apres {} application des regles ",h.count_determinant(), count_apply);
