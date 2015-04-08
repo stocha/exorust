@@ -1,7 +1,7 @@
 use std::fmt;
 
 
-#[derive(Debug,Clone)]
+#[derive( PartialEq,Eq,Debug,Clone)]
 enum Couleur{
 	Rouge,
 	Verte,
@@ -26,7 +26,7 @@ impl Couleur{
 	}
 }
 
-#[derive(Debug,Clone)]
+#[derive( PartialEq,Eq,Debug,Clone)]
 enum Nationalite{
 	Anglais,
 	Suedois,
@@ -51,7 +51,7 @@ impl Nationalite{
 	}
 }
 
-#[derive(Debug,Clone)]
+#[derive( PartialEq,Eq,Debug,Clone)]
 enum Boisson{
 	The,
 	Cafe,
@@ -77,7 +77,7 @@ impl Boisson{
 	}
 }
 
-#[derive(Debug,Clone)]
+#[derive( PartialEq,Eq,Debug,Clone)]
 enum Cigarette{
 	PallMall,
 	Dunhills,
@@ -102,7 +102,7 @@ impl Cigarette{
 	}
 }
 
-#[derive(Debug,Clone)]
+#[derive( PartialEq,Eq,Debug,Clone)]
 enum Animaux{
 	Chien,
 	Oiseaux,
@@ -388,6 +388,37 @@ fn full_possibility() -> HypotheseVector{
 		    }
 		}				
 
+		fn has_couleur<'r> (input : &'r Maison, coul : Couleur ) -> bool {
+		    match *input{
+		    	Maison { couleur : ref x 	, nationalite : _ 	, boisson : _ 	, cigarette : _						, animaux : _				 } =>  coul==*x
+
+		    }
+		}
+		fn has_nationalite<'r> (input : &'r Maison, coul : Nationalite ) -> bool {
+		    match *input{
+		    	Maison { couleur : _ 	, nationalite : ref x 	, boisson : _ 	, cigarette : _						, animaux : _				 } =>  coul==*x
+
+		    }
+		}		
+		fn has_boisson<'r> (input : &'r Maison, coul : Boisson ) -> bool {
+		    match *input{
+		    	Maison { couleur : _ 	, nationalite : _ 	, boisson : ref x 	, cigarette : _						, animaux : _				 } =>  coul==*x
+
+		    }
+		}	
+		fn has_cigarette<'r> (input : &'r Maison, coul : Cigarette ) -> bool {
+		    match *input{
+		    	Maison { couleur : _ 	, nationalite : _ 	, boisson :  _	, cigarette : ref x					, animaux : _				 } =>  coul==*x
+
+		    }
+		}		
+		fn has_animaux<'r> (input : &'r Maison, coul : Animaux ) -> bool {
+		    match *input{
+		    	Maison { couleur : _ 	, nationalite : _ 	, boisson : _ 	, cigarette : _						, animaux : ref x				 } =>  coul==*x
+
+		    }
+		}			
+
 		fn vec_has<F>(v : &Vec<Maison>,rule : F) -> bool
 		where F: Fn(&Maison) -> bool{
 
@@ -396,17 +427,6 @@ fn full_possibility() -> HypotheseVector{
 			    }
 
 			    false
-
-		}
-
-		fn vec_only<F>(v : &Vec<Maison>,rule : F) -> bool
-		where F: Fn(&Maison) -> bool{
-
-			    for f in v.iter() {
-			        if !rule(&f) {return false}
-			    }
-
-			    true
 
 		}		
 
@@ -449,6 +469,38 @@ impl HypotheseVector{
 
 	}
 
+	fn constraint_voisin_keep_unique_as_single<F>(&mut self,rule1 : F)
+		where F: Fn(&Maison) -> bool{
+
+			match *self{
+			HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
+					let ba=vec_has(&a,|x: &Maison| rule1(x));
+					let bb=vec_has(&b,|x: &Maison| rule1(x));
+					let bc=vec_has(&c,|x: &Maison| rule1(x));
+					let bd=vec_has(&d,|x: &Maison| rule1(x));
+					let be=vec_has(&e,|x: &Maison| rule1(x));
+
+
+					let the_one= match (ba,bb,bc,bd,be){
+							(true,false,false,false,false) => Some(a),
+							(false,true,false,false,false) => Some(b),
+							(false,false,true,false,false) => Some(c),
+							(false,false,false,true,false) => Some(d),
+							(false,false,false,false,true) => Some(e),
+							_ => None
+					};
+
+					match the_one{
+						Some(k)=>{
+							k.retain(|x: &Maison| rule1(x));}
+						None=> {}
+					}
+				}
+
+			}
+
+		}	
+
 	fn constraint_voisin_keep_not_in_or_voisin_in<F,G>(&mut self,rule1 : F,rule2 : G)
 	where F: Fn(&Maison) -> bool, G: Fn(&Maison) -> bool{
 
@@ -471,27 +523,6 @@ impl HypotheseVector{
 
 	}		
 
-	fn constraint_voisin_keep_in_or_not_voisin_onlyin<F,G>(&mut self,rule1 : F,rule2 : G)
-	where F: Fn(&Maison) -> bool, G: Fn(&Maison) -> bool{
-
-		match *self{
-		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
-				let ba=vec_only(&a,|x: &Maison| !rule1(x));
-				let bb=vec_only(&b,|x: &Maison| !rule1(x));
-				let bc=vec_only(&c,|x: &Maison| !rule1(x));
-				let bd=vec_only(&d,|x: &Maison| !rule1(x));
-				let be=vec_only(&e,|x: &Maison| !rule1(x));
-
-				a.retain(|x: &Maison| rule2(x) || 		!bb);
-				b.retain(|x: &Maison| rule2(x) || (!ba && 	!bc));
-				c.retain(|x: &Maison| rule2(x) || (!bb && 	!bd));
-				d.retain(|x: &Maison| rule2(x) || (!bc && 	!be));
-				e.retain(|x: &Maison| rule2(x) || !bd );
-			}
-
-		}
-
-	}	
 
 	fn constraint_voisin<F,G>(&mut self,rule1 : F,rule2 : G)
 	where F: Fn(&Maison) -> bool, G: Fn(&Maison) -> bool{
@@ -499,11 +530,6 @@ impl HypotheseVector{
 
 		self.constraint_voisin_keep_not_in_or_voisin_in(|x: &Maison| rule1(x),|x: &Maison| rule2(x));
 		self.constraint_voisin_keep_not_in_or_voisin_in(|x: &Maison| rule2(x),|x: &Maison| rule1(x));
-
-		self.constraint_voisin_keep_in_or_not_voisin_onlyin(|x: &Maison| rule1(x),|x: &Maison| rule2(x));
-		self.constraint_voisin_keep_in_or_not_voisin_onlyin(|x: &Maison| rule2(x),|x: &Maison| rule1(x));
-
-
 	}	
 
 //4. La maison verte est juste à gauche de la maison blanche.
@@ -585,6 +611,36 @@ impl HypotheseVector{
 		self.r8_centre_lait();
 		self.r9_norvegien_premiere();
 		self.r14_norvegien_cote_maison_bleue();
+
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_couleur(x,Couleur::Verte));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_couleur(x,Couleur::Blanche));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_couleur(x,Couleur::Jaune));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_couleur(x,Couleur::Bleue));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_couleur(x,Couleur::Rouge));
+
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_nationalite(x,Nationalite::Suedois));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_nationalite(x,Nationalite::Danois));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_nationalite(x,Nationalite::Anglais));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_nationalite(x,Nationalite::Norvegien));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_nationalite(x,Nationalite::Allemand));		
+
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_boisson(x,Boisson::Eau));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_boisson(x,Boisson::The));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_boisson(x,Boisson::Cafe));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_boisson(x,Boisson::Biere));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_boisson(x,Boisson::Lait));			
+
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_cigarette(x,Cigarette::Dunhills));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_cigarette(x,Cigarette::PallMall));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_cigarette(x,Cigarette::Blends));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_cigarette(x,Cigarette::BleueMasters));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_cigarette(x,Cigarette::Prince));		
+
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_animaux(x,Animaux::Oiseaux));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_animaux(x,Animaux::Chien));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_animaux(x,Animaux::Chevaux));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_animaux(x,Animaux::Chats));
+		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_animaux(x,Animaux::PoissonRouge));	
 	}
 }
 
