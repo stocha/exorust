@@ -523,6 +523,40 @@ impl HypotheseVector{
 
 	}		
 
+	fn constraint_voisin_gauche_droite<F,G>(&mut self,rule1 : F,rule2 : G)
+	where F: Fn(&Maison) -> bool, G: Fn(&Maison) -> bool{
+
+		match *self{
+		HypotheseVector(ref mut a,ref mut b,ref mut c,ref mut d,ref mut e) => {
+				let ba=vec_has(&a,|x: &Maison| rule1(x));
+				let bb=vec_has(&b,|x: &Maison| rule1(x));
+				let bc=vec_has(&c,|x: &Maison| rule1(x));
+				let bd=vec_has(&d,|x: &Maison| rule1(x));
+				//let be=vec_has(&e,|x: &Maison| rule1(x));
+
+				a.retain(|x: &Maison| !rule2(x));
+				b.retain(|x: &Maison| !rule2(x) || ba);
+				c.retain(|x: &Maison| !rule2(x) || bb);
+				d.retain(|x: &Maison| !rule2(x) || bc);
+				e.retain(|x: &Maison| !rule2(x) || bd );
+
+				//let da=vec_has(&a,|x: &Maison| rule2(x));
+				let db=vec_has(&b,|x: &Maison| rule2(x));
+				let dc=vec_has(&c,|x: &Maison| rule2(x));
+				let dd=vec_has(&d,|x: &Maison| rule2(x));
+				let de=vec_has(&e,|x: &Maison| rule2(x));	
+
+				a.retain(|x: &Maison| !rule1(x) || db);
+				b.retain(|x: &Maison| !rule1(x) || dc);
+				c.retain(|x: &Maison| !rule1(x) || dd);
+				d.retain(|x: &Maison| !rule1(x) || de);
+				e.retain(|x: &Maison| !rule1(x));
+			}
+
+		}
+
+	}		
+
 
 	fn constraint_voisin<F,G>(&mut self,rule1 : F,rule2 : G)
 	where F: Fn(&Maison) -> bool, G: Fn(&Maison) -> bool{
@@ -533,8 +567,16 @@ impl HypotheseVector{
 	}	
 
 //4. La maison verte est juste à gauche de la maison blanche.
-	fn r4_maison_verte_gauche_blanche<'cl, 'a> ( &mut self ) -> (){
+//8. L'homme qui vit dans la maison du centre boit du lait. 
+//9. Le Norvégien vit dans la première maison. 
+//10. L'homme qui fume des Blends vit à côté de celui qui élève des chats. 
+//11. L'homme qui élève des chevaux vit à côté du fumeur de Dunhills. 
+//14. Le Norvégien vit à côté de la maison bleue. 
+//15. L'homme qui fume des Blends a un voisin qui boit de l'eau.		
 
+//4. La maison verte est juste à gauche de la maison blanche.
+	fn r4_maison_verte_gauche_blanche<'cl, 'a> ( &mut self ) -> (){
+		self.constraint_voisin_gauche_droite(|x: &Maison| has_couleur(x,Couleur::Verte),|x: &Maison| has_couleur(x,Couleur::Blanche));
 
 
 	}
@@ -570,10 +612,24 @@ impl HypotheseVector{
 
 		}
 	}
+//10. L'homme qui fume des Blends vit à côté de celui qui élève des chats. 
+	fn r10_blends_voisin_chats<'cl, 'a> ( &mut self ) -> (){
+		self.constraint_voisin(|x: &Maison| has_cigarette(x,Cigarette::Blends),|x: &Maison| has_animaux(x,Animaux::Chats));
+	}	
+//11. L'homme qui élève des chevaux vit à côté du fumeur de Dunhills. 
+	fn r11_chevaux_voisin_dunhills<'cl, 'a> ( &mut self ) -> (){
+		self.constraint_voisin(|x: &Maison| has_cigarette(x,Cigarette::Dunhills),|x: &Maison| has_animaux(x,Animaux::Chevaux));
+	}	
+
 //14. Le Norvégien vit à côté de la maison bleue. 	
 	fn r14_norvegien_cote_maison_bleue<'cl, 'a> ( &mut self ) -> (){
 		self.constraint_voisin(|x: &Maison| has_a_norvegien(x),|x: &Maison| has_bleue(x));
 	}
+
+//15. L'homme qui fume des Blends a un voisin qui boit de l'eau.
+	fn r15_blend_voisin_eau<'cl, 'a> ( &mut self ) -> (){
+		self.constraint_voisin(|x: &Maison| has_cigarette(x,Cigarette::Blends),|x: &Maison| has_boisson(x,Boisson::Eau));
+	}	
 
 	fn apply<F>(&mut self,rule : F)
 	where F: Fn(&Maison) -> bool{
@@ -610,7 +666,10 @@ impl HypotheseVector{
 		self.r4_maison_verte_gauche_blanche();
 		self.r8_centre_lait();
 		self.r9_norvegien_premiere();
+		self.r10_blends_voisin_chats();
+		self.r11_chevaux_voisin_dunhills();
 		self.r14_norvegien_cote_maison_bleue();
+		self.r15_blend_voisin_eau();
 
 		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_couleur(x,Couleur::Verte));
 		self.constraint_voisin_keep_unique_as_single(|x: &Maison| has_couleur(x,Couleur::Blanche));
