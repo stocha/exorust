@@ -11,7 +11,7 @@ use std::ops::{BitXor, BitAnd,BitOr,Not};
 
     }
 
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug,Clone,Copy,PartialEq,Eq)]
 struct R1b {
 	v : u64
 
@@ -101,6 +101,30 @@ fn r1b_basic() {
 	assert!(x.get(0)==1);
 	x=x.set(0,0);
 	assert!(x.get(0)==0);
+
+	let mut x=R1b::new();
+	let mut o=R1b::new();
+
+	x=x.set(0,1);
+	o=o.set(0,0);
+
+	assert!(o^o==o);
+	assert!(o^x==x);
+	assert!(x^o==x);
+	assert!(x^x==o);
+
+	assert!(o&o==o);
+	assert!(o&x==o);
+	assert!(x&o==o);
+	assert!(x&x==x);	
+
+	assert!(o|o==o);
+	assert!(o|x==x);
+	assert!(x|o==x);
+	assert!(x|x==x);	
+
+	assert!(!o==x);
+	assert!(!x==o);	
 }
 
 pub fn launch()->(){
