@@ -15,7 +15,8 @@ mod exo;
 
 
 fn main() {
-	exo::einstein_enigma2::launch();
+	exo::big_register::launch();
+	//exo::einstein_enigma2::launch();
 	//exo::einstein_enigma::launch();
 	//exo::puissance_four::launch();
 	//exo::hello_world::launch();
