@@ -28,7 +28,7 @@ impl R1b{
 
 
 impl RegisterMinimal for R1b{
-	fn size(&self) -> usize{
+	fn size() -> usize{
 		1
 	}
 		fn get(&self,index : usize) -> u64{
