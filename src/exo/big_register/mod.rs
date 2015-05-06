@@ -1,9 +1,9 @@
 
 
 use std::fmt;
-use std::ops::{BitXor, BitAnd,BitOr,Not};
+use std::ops::{BitXor, BitAnd,BitOr,Not,Shl,Shr};
 
-    trait RegisterMinimal<T = Self> : BitXor + BitAnd +BitOr +Not + Copy{
+    trait RegisterMinimal<T = Self> : BitXor + BitAnd +BitOr +Not + Shl<usize> + Shr<usize> + Copy{
 		fn size(&self) -> usize;
 		fn get(&self,index : usize) -> u64;
 		fn set(self,index : usize,value : u64)->T ;
@@ -90,6 +90,22 @@ impl Not for R1b {
     }
 }
 
+impl Shl<usize> for R1b {
+    type Output = R1b;
+
+    fn shl(self, _rhs: usize) -> R1b {
+        R1b{v: (self.v<<_rhs & 1)}
+    }
+}
+
+impl Shr<usize> for R1b {
+    type Output = R1b;
+
+    fn shr(self, _rhs: usize) -> R1b {
+        R1b{v: (self.v>>_rhs) & 1}
+    }
+}
+
 #[test]
 fn r1b_basic() {
 	let mut x=R1b::new();
@@ -125,6 +141,11 @@ fn r1b_basic() {
 
 	assert!(!o==x);
 	assert!(!x==o);	
+
+	assert!(x<<1==o);
+	assert!(x>>1==o);		
+	assert!(o<<1==o);
+	assert!(o<<1==o);	
 }
 
 pub fn launch()->(){
