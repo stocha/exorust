@@ -1,6 +1,7 @@
 
 pub mod interfaces;
 pub mod r1b;
+pub mod composed_register;
 
 use exo::big_register::r1b::{R1b};
 
