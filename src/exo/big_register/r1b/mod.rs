@@ -98,44 +98,52 @@ impl Shr<usize> for R1b {
     }
 }
 
-#[test]
-fn r1b_basic() {
-	let mut x=R1b::new();
-	x=x.set(0,0);
-	assert!(format!("{}",x)=="O");
-	x=x.set(0,1);
-	assert!(format!("{}",x)=="X");
 
-	assert!(x.get(0)==1);
-	x=x.set(0,0);
-	assert!(x.get(0)==0);
 
-	let mut x=R1b::new();
-	let mut o=R1b::new();
+#[cfg(test)]
+mod tests{
+	use super::*;
+	use exo::big_register::interfaces::{RegisterMinimal};	
 
-	x=x.set(0,1);
-	o=o.set(0,0);
+	#[test]
+	fn r1b_basic() {
+		let mut x=R1b::new();
+		x=x.set(0,0);
+		assert!(format!("{}",x)=="O");
+		x=x.set(0,1);
+		assert!(format!("{}",x)=="X");
 
-	assert!(o^o==o);
-	assert!(o^x==x);
-	assert!(x^o==x);
-	assert!(x^x==o);
+		assert!(x.get(0)==1);
+		x=x.set(0,0);
+		assert!(x.get(0)==0);
 
-	assert!(o&o==o);
-	assert!(o&x==o);
-	assert!(x&o==o);
-	assert!(x&x==x);	
+		let mut x=R1b::new();
+		let mut o=R1b::new();
 
-	assert!(o|o==o);
-	assert!(o|x==x);
-	assert!(x|o==x);
-	assert!(x|x==x);	
+		x=x.set(0,1);
+		o=o.set(0,0);
 
-	assert!(!o==x);
-	assert!(!x==o);	
+		assert!(o^o==o);
+		assert!(o^x==x);
+		assert!(x^o==x);
+		assert!(x^x==o);
 
-	assert!(x<<1==o);
-	assert!(x>>1==o);		
-	assert!(o<<1==o);
-	assert!(o<<1==o);	
+		assert!(o&o==o);
+		assert!(o&x==o);
+		assert!(x&o==o);
+		assert!(x&x==x);	
+
+		assert!(o|o==o);
+		assert!(o|x==x);
+		assert!(x|o==x);
+		assert!(x|x==x);	
+
+		assert!(!o==x);
+		assert!(!x==o);	
+
+		assert!(x<<1==o);
+		assert!(x>>1==o);		
+		assert!(o<<1==o);
+		assert!(o<<1==o);	
+	}
 }
